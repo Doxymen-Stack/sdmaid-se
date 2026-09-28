@@ -1,0 +1,41 @@
+name: Build SD Maid SE FOSS
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build FOSS Debug APK
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Build FOSS Debug
+        run: ./gradlew assembleFossDebug
+
+      - name: Find APK
+        run: find app/build/outputs/apk -type f -name "*.apk" -print
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: sdmaid-se-foss-debug
+          path: app/build/outputs/apk/**/*.apk
+          if-no-files-found: error
